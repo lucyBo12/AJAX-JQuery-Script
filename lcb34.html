@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>lcb34 Assignment 2</title>
+
+<style>
+.main{
+background-color: #F8BFFF;
+text-align: center;
+border-radius: 25px;
+box-shadow: 5px 10px #9F56A9;
+
+}
+
+h1{
+color: #40C82F;
+text-align: center;
+font-size: 300%;
+position: relative;
+text-shadow: 2px 2px #C6FFBF
+}
+
+table {
+table-layout: fixed;
+width: 100%;
+border-collapse: collapse;
+border: 3px solid purple;
+}
+
+#countryTable {
+position: relative;
+font-family: Arial;
+margin: auto;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js">
+</script>
+<script>
+$(document).ready(function() {
+$.ajax({
+url: 'https://www.cs.kent.ac.uk/people/staff/yh/co539-A2/countryData.php?regions',
+type: 'GET',
+dataType: 'json',
+success: function(data) {
+$.each(data, function(value) {
+$('#regions').append('<option value= " ' + data[value] + ' ">' + data[value] + '</option>');
+});
+}
+});
+
+$('#regions').change(function() {
+var region = $(this).val();
+$('#dataForCountry').html('');
+console.log(region);
+$.ajax({
+url: 'https://www.cs.kent.ac.uk/people/staff/yh/co539-A2/countryData.php?region=' + region,
+type: 'GET',
+dataType: 'json',
+success: function(data) {
+var counter = Object.keys(dataForCountry).length;
+console.log(dataForCountry);
+$.each(data, function(value) {
+var country = data[value];
+$('#dataForCountry').append('<tr><td>' + country.code + '</td><td>' + country.name + '</td><td>' + country.capital + '</td><td>' + country.info.population + '</td><td>' + country.info.language + '</td></tr>');
+var countryPopulation = [];
+countryPopulation.push(country);
+console.log(countryPopulation);
+var sum = 0;
+for (var i = 0; i < countryPopulation.length; i++) {
+	sum += parseInt(countryPopulation[i]);
+}
+var avg = sum / countryPopulation.length;
+var help = document.getElementById("help");
+});
+}
+});
+});
+});
+
+function findAverage() {
+var table = $("table tbody");
+var popA = [];
+var sum = 0;
+table.find('tr').each(function(i) {
+var $tds = $(this).find('td'),
+population = $tds.eq(3).text(),
+population = parseInt(population);
+popA.push(population);
+console.log(population);
+console.log(popA);
+
+for (var i = 0; i < popA.length; i++) {
+sum = sum +parseInt(popA[i]);
+}
+var avg = sum / popA.length;
+avg = avg.toFixed(2);
+console.log("Average " + avg);
+var help = document.getElementById("help");
+help.innerHTML = avg;
+
+});
+};
+
+function findTotal() {
+var rowCount = $('#countryTable >tbody >tr').length;
+console.log(rowCount);
+var total = document.getElementById("total");
+total.innerHTML = rowCount;
+};
+
+
+function sortTable(n) {
+var rows = 0;
+var i = 0;
+var j = 0;
+var swap = 0;
+var swapCount = 0;
+var table = document.getElementById("countryTable");
+var switching = true;
+var direction = "asc ";
+var chck = 0;
+while (switching) {
+switching = false;
+rows = table.getElementsByTagName("TR");
+for (chck = 1; chck < rows.length - 1; chck++) { 
+swap = false;
+i = rows[chck].getElementsByTagName("TD")[n];
+j = rows[chck + 1].getElementsByTagName("TD")[n];
+if (direction == "asc ") {
+if (i.innerHTML.toLowerCase() > j.innerHTML.toLowerCase()) {
+swap = true;
+break;
+}
+} else if (direction == "desc ") {
+if (i.innerHTML.toLowerCase() < j.innerHTML.toLowerCase()) {
+swap = true;
+break;
+}
+}
+}
+if (swap) {
+rows[chck].parentNode.insertBefore(rows[chck + 1], rows[chck]);
+switching = true;
+swapCount++;
+} 
+else if (swapCount == 0 && direction == "asc ") {
+direction = "desc ";
+switching = true;
+}
+}
+}
+</script>
+</head>
+<body>
+<div class="main">
+<div class="container">
+<form>
+<h1>Select Region</h1>
+<div class="dropdown">
+<select name="regions" id="regions" class="form-control">
+<option value="">Select Region</option>
+</select>
+</div>
+</form>
+</div>
+<div id="regionData">
+<table class="styled-table" id="countryTable">
+<thead>
+<tr>
+<th onclick="sortTable(0)">Country Code</th><th onclick="sortTable(1)">Country Name</th><th onclick="sortTable(2)">Countrys Capital</th>
+<th onclick="sortTable(3)">Population</th><th onclick="sortTable(4)">Language</th>
+</tr></thead>
+<tbody id="dataForCountry">
+</tbody></table>
+<div>
+<p onclick="findTotal()"> Total Countries: <span id="total"></span> </p><p onclick="findAverage()"> Average Population: <span id="help"></span> </p>
+</div>
+</div>
+</div>
+</body>
+</html>
